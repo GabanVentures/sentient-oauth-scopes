@@ -24,9 +24,14 @@ export const REQUIRED_TRADING_SCOPES = Object.freeze(["read", "trade"]);
  */
 export function normalizeScopes(input) {
   if (Array.isArray(input)) {
+    // Trim + lowercase + drop empties so " READ " and "READ" hash to "read"
+    // regardless of which encoding TastyTrade returned. The string branch
+    // already does this; both branches must agree or verifyRequiredScopes
+    // gets false negatives when scopes arrive with stray whitespace.
     return input
       .filter((s) => typeof s === "string")
-      .map((s) => s.toLowerCase());
+      .map((s) => s.trim().toLowerCase())
+      .filter((s) => s.length > 0);
   }
   if (typeof input === "string") {
     return input

@@ -1,6 +1,6 @@
 {
   "name": "@sentient/oauth-scopes",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Shared TastyTrade OAuth scope normalization for the Sentient Trading bot and dashboard. Keeps the two repos in lockstep so a scope parser drift can't reintroduce save-time false positives or negatives.",
   "type": "module",
   "main": "src/index.js",

@@ -24,6 +24,20 @@ describe("normalizeScopes", () => {
   test("array filters non-strings", () => {
     assert.deepEqual(normalizeScopes(["read", 42, null, "trade"]), ["read", "trade"]);
   });
+  test("array trims whitespace + drops empties (matches string-branch behaviour)", () => {
+    // Regression for v0.1.0 bug: array branch lowercased but did not trim, so
+    // [" read ", "TRADE "] returned [" read ", "trade "] and verifyRequiredScopes
+    // reported both required scopes missing. Reported on
+    // sentient-options-platform#18.
+    assert.deepEqual(
+      normalizeScopes([" read ", "TRADE "]),
+      ["read", "trade"],
+    );
+    assert.deepEqual(
+      normalizeScopes(["  ", "read", ""]),
+      ["read"],
+    );
+  });
   test("returns [] for unsupported types", () => {
     assert.deepEqual(normalizeScopes(null), []);
     assert.deepEqual(normalizeScopes(undefined), []);
@@ -167,6 +181,12 @@ describe("verifyRequiredScopes", () => {
       verifyRequiredScopes(["read"], ["read", "admin"]),
       { ok: false, missing: ["admin"] },
     );
+  });
+  test("end-to-end: whitespace-wrapped granted scopes still pass", () => {
+    // The reviewer's repro from sentient-options-platform#18:
+    // normalizeScopes([" read ", "TRADE "]) → verifyRequiredScopes should pass.
+    const granted = normalizeScopes([" read ", "TRADE "]);
+    assert.deepEqual(verifyRequiredScopes(granted), { ok: true });
   });
 });
 
